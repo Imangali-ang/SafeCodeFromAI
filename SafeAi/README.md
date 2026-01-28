@@ -452,7 +452,7 @@ SOFTWARE.
 - 🌐 Live Demo: [https://imangali-ang.github.io/SafeAi](https://imangali-ang.github.io/SafeAi)
 - 🐛 Report Issues: [GitHub Issues](https://github.com/imangali-ang/SafeAi/issues)
 - 💡 Feature Requests: [GitHub Discussions](https://github.com/imangali-ang/SafeAi/discussions)
-- 👤 Author: [Imangali Ahmetov](https://github.com/imangali-ang)
+- 👤 Author: [Imangali](https://github.com/imangali-ang)
 
 ---
 
