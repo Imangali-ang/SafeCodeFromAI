@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Безопасная анонимизация Java/Spring/Kafka кода и конфигурационных файлов перед отправкой в AI-ассистенты. 100% client-side, без серверов.">
+    <meta name="keywords" content="java anonymizer, code anonymizer, spring anonymization, kafka, ai code helper, безопасность кода, анонимизация кода">
+    <meta name="author" content="Imangali Ahmetov">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://imangali-ang.github.io/SafeAi/">
+    <meta property="og:title" content="SafeCode AI - Безопасная анонимизация кода для AI">
+    <meta property="og:description" content="Анонимизируйте Java/Spring/Kafka код перед отправкой в ChatGPT или Claude. 100% client-side, полная конфиденциальность.">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://imangali-ang.github.io/SafeAi/">
+    <meta property="twitter:title" content="SafeCode AI - Безопасная анонимизация кода для AI">
+    <meta property="twitter:description" content="Анонимизируйте Java/Spring/Kafka код перед отправкой в ChatGPT или Claude. 100% client-side, полная конфиденциальность.">
+
+    <title>SafeCode AI - Анонимизация кода для AI</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+    <script data-goatcounter="https://imangali-ang.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔒 SafeCode AI</h1>
+            <p class="subtitle">Безопасная анонимизация Java/Spring/Kafka проектов и конфигурационных файлов перед отправкой в AI</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="anonymize">
+                <span class="tab-icon">🔐</span> Анонимизация
+            </button>
+            <button class="tab-button" data-tab="deanonymize">
+                <span class="tab-icon">🔓</span> Деанонимизация
+            </button>
+        </div>
+
+        <!-- PHASE 1: ANONYMIZATION -->
+        <div id="anonymize-tab" class="tab-content active">
+            <div class="options-panel">
+                <h3>Настройки анонимизации</h3>
+                <div class="options-grid">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="opt-functions" checked>
+                        <span>Анонимизировать функции</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="opt-variables" checked>
+                        <span>Анонимизировать переменные</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="opt-classes" checked>
+                        <span>Анонимизировать классы</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="opt-strings" checked>
+                        <span>Анонимизировать строки (URLs/endpoints/SQL)</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="opt-comments" checked>
+                        <span>Удалить комментарии</span>
+                    </label>
+                </div>
+
+                <div class="custom-imports-section">
+                    <label for="custom-imports">
+                        <strong>Custom import prefixes для анонимизации (через запятую):</strong>
+                    </label>
+                    <input
+                        type="text"
+                        id="custom-imports"
+                        placeholder="Например: com.mycompany, org.myproject"
+                        class="custom-imports-input"
+                    />
+                    <small>Импорты с этими префиксами будут анонимизированы</small>
+                </div>
+
+                <div class="custom-imports-section">
+                    <label for="blacklist">
+                        <strong>Исключения из анонимизации (через запятую):</strong>
+                    </label>
+                    <input
+                        type="text"
+                        id="blacklist"
+                        placeholder="Например: SuppressWarnings, serialVersionUID"
+                        class="custom-imports-input"
+                    />
+                    <small>Эти имена не будут анонимизированы (exact match)</small>
+                </div>
+            </div>
+
+            <div class="editor-layout">
+                <div class="editor-panel" id="input-panel">
+                    <div class="panel-header">
+                        <h3>Исходный код</h3>
+                        <div class="button-group">
+                            <button class="btn-secondary btn-small" id="fullscreen-input" title="Полноэкранный режим">
+                                <span class="btn-icon">⛶</span> Полный экран
+                            </button>
+                            <button class="btn-secondary btn-small" id="clear-input">Очистить</button>
+                        </div>
+                    </div>
+                    <div id="input-code-wrapper" class="code-editor-wrapper"></div>
+                    <textarea
+                        id="input-code"
+                        class="code-editor"
+                        style="display: none;"
+                        spellcheck="false"
+                    ></textarea>
+                </div>
+
+                <div class="editor-panel" id="output-panel">
+                    <div class="panel-header">
+                        <h3>Анонимизированный код</h3>
+                        <div class="button-group">
+                            <button class="btn-secondary btn-small" id="fullscreen-output" title="Полноэкранный режим">
+                                <span class="btn-icon">⛶</span> Полный экран
+                            </button>
+                            <button class="btn-secondary btn-small" id="copy-anonymized" title="Копировать код">
+                                <span class="btn-icon">📋</span> Копировать
+                            </button>
+                            <button class="btn-secondary btn-small" id="download-code" title="Скачать код">
+                                <span class="btn-icon">💾</span> Скачать
+                            </button>
+                        </div>
+                    </div>
+                    <div id="output-code-wrapper" class="code-editor-wrapper"></div>
+                    <textarea
+                        id="output-code"
+                        class="code-editor"
+                        style="display: none;"
+                        spellcheck="false"
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="action-panel">
+                <button class="btn-primary" id="anonymize-btn">
+                    <span class="btn-icon">🔐</span>
+                    Анонимизировать код
+                </button>
+            </div>
+
+            <div class="stats-panel" id="stats-panel" style="display: none;">
+                <h3>Статистика анонимизации</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-functions">0</span>
+                        <span class="stat-label">Методов</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-variables">0</span>
+                        <span class="stat-label">Переменных</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-classes">0</span>
+                        <span class="stat-label">Классов</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-parameters">0</span>
+                        <span class="stat-label">Параметров</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-constants">0</span>
+                        <span class="stat-label">Констант</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-strings">0</span>
+                        <span class="stat-label">Строк</span>
+                    </div>
+                </div>
+                <button class="btn-accent" id="download-mapping">
+                    <span class="btn-icon">💾</span>
+                    Скачать mapping.json
+                </button>
+            </div>
+        </div>
+
+        <!-- PHASE 2: DEANONYMIZATION -->
+        <div id="deanonymize-tab" class="tab-content">
+            <div class="upload-panel">
+                <h3>Загрузка mapping файла</h3>
+                <div class="upload-area">
+                    <input type="file" id="mapping-file" accept=".json" style="display: none;">
+                    <button class="btn-secondary" id="upload-mapping-btn">
+                        <span class="btn-icon">📁</span>
+                        Выбрать mapping.json
+                    </button>
+                    <span class="file-name" id="mapping-filename">Файл не выбран</span>
+                    <button class="btn-secondary btn-small" id="use-last-mapping" title="Использовать последний mapping">
+                        Использовать последний
+                    </button>
+                </div>
+                <div class="mapping-info" id="mapping-info" style="display: none;">
+                    <p><strong>Файл загружен:</strong> <span id="info-filename"></span></p>
+                    <p><strong>Дата создания:</strong> <span id="info-timestamp"></span></p>
+                    <p><strong>Версия:</strong> <span id="info-version"></span></p>
+                </div>
+            </div>
+
+            <div class="editor-layout">
+                <div class="editor-panel">
+                    <div class="panel-header">
+                        <h3>Код от AI (анонимизированный)</h3>
+                        <button class="btn-secondary btn-small" id="clear-ai-code">Очистить</button>
+                    </div>
+                    <textarea
+                        id="ai-code"
+                        class="code-editor"
+                        placeholder="Вставьте код, полученный от AI (с анонимизированными именами)..."
+                        spellcheck="false"
+                    ></textarea>
+                </div>
+
+                <div class="editor-panel">
+                    <div class="panel-header">
+                        <h3>Восстановленный код</h3>
+                        <div class="button-group">
+                            <button class="btn-secondary btn-small" id="copy-restored" title="Копировать код">
+                                <span class="btn-icon">📋</span> Копировать
+                            </button>
+                            <button class="btn-secondary btn-small" id="download-restored" title="Скачать код">
+                                <span class="btn-icon">💾</span> Скачать
+                            </button>
+                        </div>
+                    </div>
+                    <textarea
+                        id="restored-code"
+                        class="code-editor"
+                        placeholder="Восстановленный код появится здесь..."
+                        readonly
+                        spellcheck="false"
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="action-panel">
+                <button class="btn-primary" id="deanonymize-btn">
+                    <span class="btn-icon">🔓</span>
+                    Деанонимизировать код
+                </button>
+            </div>
+        </div>
+
+        <footer>
+            <p>🛡️ 100% client-side • Данные не передаются на сервер • <a href="https://github.com/imangali-ang/SafeAi" target="_blank" style="color: #3498DB; text-decoration: none;">Open Source</a></p>
+            <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Made with ❤️ by <a href="https://github.com/imangali-ang" target="_blank" style="color: #3498DB; text-decoration: none;">Imangali Ahmetov</a></p>
+        </footer>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+    <script src="js/anonymizer.js"></script>
+    <script src="js/deanonymizer.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
